@@ -1,0 +1,138 @@
+
+```{r}
+
+library(ggplot2)
+library(tidyr)
+library(viridis)
+
+data <- read.csv("/Users/Jordan/Desktop/FRP.csv", header = TRUE)
+
+distinct_colors <- viridis::inferno(22)
+
+phylum_names <- c(
+  #"OD1", "Bacteroidetes", "Actinobacteria", "Proteobacteria", "Cyanobacteria",
+  #"Firmicutes", "TM6", "Planctomycetes", "Acidobacteria", "Verrucomicrobia",
+  #"Chloroflexi", "Chlamydiae", "Parvarchaeota", "SR1", "Tenericutes",
+  #"Fusobacteria", "WS5", "Chlorobi", "Armatimonadetes", "Gemmatimonadetes",
+  #"Euryarchaeota", "Unassigned"
+
+distinct_colors <- distinct_colors[1:length(phylum_names)]
+
+ggplot(data, aes(x = abundance_108A, y = Value, fill = Phylum)) +
+  #geom_bar(stat = "identity", width = 0.8) +
+  #ylab("Percentage") +
+  #xlab("Sample") +
+  #scale_y_continuous(limits = c(0, 100)) +
+  #scale_fill_manual(values = distinct_colors, labels = phylum_names) +
+  #theme_minimal() +
+  #theme(axis.text.y = element_text(size = 8, face = "bold")) +
+  #theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8)) +
+  #theme(legend.text = element_text(size = 8)) +
+  #coord_flip()
+
+```
+
+```{r}
+#R code for running a t-test on the two sets of data collected from the same rock pool
+
+data_108A <- c(0, 15.74, 23.22456814, 47.50479846, 4.222648752, 2.591170825, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5.37428023)
+data_108B <- c(0, 13.61216332, 27.76022483, 39.93576204, 6.284148236, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6.760696144)
+
+t_test_result <- t.test(data_108A, data_108B, paired = TRUE)
+
+print(t_test_result)
+
+#R code for bargraphs comparing samples A and B from the same rock pool looking for an significant difference 
+data_108A <- c(0, 15.74, 23.22456814, 47.50479846, 4.222648752, 2.591170825, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5.37428023)
+data_108B <- c(0, 13.61216332, 27.76022483, 39.93576204, 6.284148236, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6.760696144)
+
+mean_108A <- mean(data_108A)
+mean_108B <- mean(data_108B)
+stderr_108A <- sd(data_108A) / sqrt(length(data_108A))
+stderr_108B <- sd(data_108B) / sqrt(length(data_108B))
+
+t_test_result <- t.test(data_108A, data_108B, paired = TRUE)
+
+phyla <- c("OD1", "Bacteroidetes", "Actinobacteria", "Proteobacteria", "Cyanobacteria", "Firmicutes", "TM6", "Planctomycetes", "Acidobacteria", "Verrucomicrobia", "Chloroflexi", "Chlamydiae", "Parvarchaeota", "SR1", "Tenericutes", "Fusobacteria", "WS5", "Chlorobi", "Armatimonadetes", "Gemmatimonadetes", "Euryarchaeota", "Unassigned")
+abundance_108A <- c(0, 15.74, 23.22456814, 47.50479846, 4.222648752, 2.591170825, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5.37428023)
+abundance_108B <- c(0, 13.61216332, 27.76022483, 39.93576204, 6.284148236, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6.760696144)
+
+barplot_height <- c(mean_108A, mean_108B)
+barplot_stderr <- c(stderr_108A, stderr_108B)
+barplot_names <- c("108A", "108B")
+barplot_colors <- c("blue", "red")
+
+plot.new()
+barplot(barplot_height, ylim = c(0, max(barplot_height) + max(barplot_stderr) * 2), names.arg = barplot_names, col = barplot_colors, xlab = "Condition", ylab = "Mean Abundance", main = "Mean Abundance of Phyla (108A vs 108B)")
+
+```
+
+```{r}
+
+#Complete Code for Correlation Matrix 
+
+data <- read.csv("/Users/Jordan/Desktop/metadata.tsv")
+str(data)
+summary(data)
+
+install.packages("corrplot")
+
+library(tidyverse)
+library(ggplot2)
+library(car)
+library(MASS)
+library(corrplot)
+library(dplyr)
+
+numeric_data <- select_if(data[, !names(data) %in% c("lat.", "long", "Day")], is.numeric)
+
+correlation_matrix <- cor(numeric_data)
+
+my_colors <- colorRampPalette(c("purple", "white", "blue"))(100)
+
+corrplot(correlation_matrix, method = "color", addCoef.col = "black", cl.cex = 0.7, 
+         col = my_colors, tl.col = "purple", cl.length = 2, tl.cex = 1, number.cex = 0.8)
+
+
+```
+
+```{r}
+
+#Reflection Questions 
+
+#1) Visualization ranking list, 1 = relative abundance bargraph, 2 = correlation matrix, 3 = t test bar graph 
+
+#2) I really like the environmental variable correlation matrix. I think it is easy to read and turned out exactly how I wanted it too. I also can easily add the additional environmental metadata to the matrix as I collect it. 
+
+#3) I did not have any issues accessing the data for my project because all the sequence data I collected. The environmental data was a collection of historical data from our collaborators James Vonesh and Karen Barnard-Kubow. 
+
+#4) Initially I didn't consider doing anything with just the data of the environmental variables, but as I dove more into the analysis I thought it would be interesting to investigate teh relationships between the environmentall variables. Upon investigation, the results were what I would have expected but it is still interesting to visualize! 
+
+#5) I had a lot of issues with the reconstruction of the relative abundance bar graph. I underestimated how long it would take to clean up the raw sequence data and I spent a ton of time doing that. I calculated the relative abundance of each phylum within each pool and then I combined some of the phylum into "Other" or "Unassigned" categories based on their percentages. I eventually got everything cleaned up but I wished I could have figured out a more time efficient method to do so. 
+
+
+#6) I would make some more edits to the relative abundance bargraph, I would like to make the sample labels larger and more visible, I spent a lot of time trying to figure out how to make them legible and I barely did but there's definitely lots of improvements to make. I also would like to select manual colors for each of the phylum in the graph to make the distinctions between each phylum more visible. I also would like to run the significance t test for all of the sets of samples between the pools to make sure there was not any significant difference in the samples. 
+
+
+#7) I am happy with aspects of the project, I really like correlation matrix and I am excited I can easily add in additional environmental data I collect. I like the visual storymap I think it's a great way to explain my project and I can also continue to use it as I make more visualizations. I am happy that I was able to clean up my data to create the relative abundance bargraph but I definitely have some further corrections I would like to make. 
+
+
+#8) Yes of course! You can use anything and my name can stay on it. 
+
+
+#9) Have patience with R! I often found myself getting frustrated with R and then I would get confused and miss obvious errors. I learned that you need to type out a line of code, see if it works and if not inspect it slowly to determine the issue and then adjust accordingly. I also would say to definitely make sure you really understand your data before even trying to make any visualizations. I needed to explore my data and fully understand what it represented to make visualizations, if you don't know what the data is telling you, how can you decide how to present it? 
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
